@@ -1,0 +1,15 @@
+{
+        "schema_version": "1.0",
+        "name" : "mx_select_plus",
+        "label": "MX Select Plus",
+        "version": "1.4",
+        "types": ["fieldtype"],
+        "paths": {
+                "system": [
+                        "system/expressionengine/third_party/mx_select_plus"
+                ],
+                "themes": [
+                        "themes/third_party/mx_select_plus"
+                ]
+        }
+}
