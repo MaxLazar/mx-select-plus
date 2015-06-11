@@ -605,7 +605,7 @@ class Mx_select_plus_ft extends EE_Fieldtype
 		$this->save_options( $data );
 
 		if ( !empty( $data ) ) {
-			$data = ( is_array() ) ? implode( '|', $data ) : $data;
+			$data = ( is_array($data) ) ? implode( '|', $data ) : $data;
 		} else {
 			$data = $data;
 		}
