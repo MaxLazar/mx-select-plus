@@ -2,7 +2,7 @@
 if (! defined('MX_SELECT_KEY'))
 {
 	define('MX_SELECT_NAME', 'MX Select Plus');
-	define('MX_SELECT_VER',  '1.4');
+	define('MX_SELECT_VER',  '1.4.0');
 	define('MX_SELECT_KEY', 'mx_select_plus');
 	define('MX_SELECT_AUTHOR',  'Max Lazar');
 	define('MX_SELECT_DOCS',  'http://www.eec.ms/add-on/mx-select-plus');
