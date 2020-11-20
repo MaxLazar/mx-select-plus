@@ -20,17 +20,16 @@ This add-on makes long, unwieldy select boxes much more user-friendly with Chose
 * Better Workflow
 
 
-##Installation
+## Installation
 * Download the latest version of MX Select Plus and extract the .zip to your desktop.
-* Copy *system/user/third_party/mx_select_plus* to *system/expressionengine/third_party/*
-* Copy *themes/third_party/mx_select_plus* to *themes/third_party/*
+* Copy *system/user/addons/mx_select_plus* to *system/user/addons/*
+* Copy *themes/user/mx_select_plus* to *themes/user/*
 
-mx-select-plus.png
 
 ## Activation
 * Log into your control panel
-* Browse to Addons > Fieldtypes
-* Enable all the MX Select Plus CE components
+* Browse to Addons 
+* Enable all the MX Select Plus components
 
 ## Field settings
 
