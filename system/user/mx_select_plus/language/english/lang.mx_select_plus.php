@@ -7,6 +7,7 @@ $lang = array(
 ,'one_time'=>'One time'
 ,'min_width'=>'Minimum width of element? '
 ,'no_results'=>'No results matched'
+,'no_results_matched'=>'No results matched'
 ,'field_list_items'=>'Items, <br/><small>Put each item on a single line <br/><i>ex 1:  Option Label<br/>
 ex 2:  option_name : Option Label</i><br/><i>ex 2:</i> [[<i>Optgroup Name</i>]]</small>'
 ,'source'=>'Source'
