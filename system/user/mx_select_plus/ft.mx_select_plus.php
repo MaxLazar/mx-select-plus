@@ -134,10 +134,10 @@ class Mx_select_plus_ft extends EE_Fieldtype
 
         if ( $view_type != 'cell' && $view_type != 'grid' && !$is_fluid_template ) {
             $js .='$("#'.$data['id'].'").chosen({no_results_text: "'.lang('no_results').'", add_new_options: '.$data['allow_new_options'].', cell_obj:false, add_new: "'.$data['id'].'", allow_single_deselect: '.$data['allow_deselect'].', group_class: "#'.$data['id'].'", callback: function() {}});
-					$("div.publish_field.publish_mx_select_plus").css({"overflow-y" : "visible"});
-					$("#low-variables-form").css({"overflow": "visible"});
-					$("#low-variables-form").parents(".pageContents:first").css({"overflow": "visible"});
-		';
+                    $("div.publish_field.publish_mx_select_plus").css({"overflow-y" : "visible"});
+                    $("#low-variables-form").css({"overflow": "visible"});
+                    $("#low-variables-form").parents(".pageContents:first").css({"overflow": "visible"});
+        ';
         }
 
 //        $this->_add_js_css($cell_type);
@@ -1040,31 +1040,9 @@ class Mx_select_plus_ft extends EE_Fieldtype
 
             }
 
-        } elseif ($type == 'lv') {
+        } else if ($type == 'lv') {
 
-/*
-            ee()->db->select('variable_settings');
-            ee()->db->where('variable_id', $field_id);
-            $query = ee()->db->get('low_variables');
-
-            if ($query->num_rows() > 0) {
-                $variable_settings = unserialize(base64_decode($query->row()->variable_settings));
-
-                if ($variable_settings['allow_new_options'] != 'y') {
-                    return;
-                }
-
-                foreach ($data as $key => $val) {
-                    $variable_settings['options'][$val] = $val;
-                }
-
-                ee()->db->where('variable_id', $field_id);
-                ee()->db->set('variable_settings', base64_encode(serialize($variable_settings)));
-                ee()->db->update('low_variables');
-
-            }
-*/
-
+            $variable_id = false;
             $variable_table = false;
             
             if (ee()->db->table_exists('pro_variables')) {
@@ -1076,25 +1054,43 @@ class Mx_select_plus_ft extends EE_Fieldtype
             if (!$variable_table) {
                 return;
             }
-            
-            $query = ee()->db->select('variable_id')->where('variable_name', $field_id)->get('global_variables');
-            
-            if ($query->num_rows() > 0) {
 
-                $variable_id = $query->row()->variable_id;
+            if (isset($this->var_id)) {
+                $variable_id = $this->var_id;
+            } else {
+                $variable_id = ee()->db->select('variable_id')->where('variable_name', $field_id)->get('global_variables')->row('variable_id');
+            }
+
+            if ($variable_id) {
 
                 $var_query = $query = ee()->db->select('variable_settings')->where('variable_id', $variable_id)->get($variable_table);
                 
                 if ($var_query->num_rows() > 0) {
+
+                    $variable_settings = $var_query->row()->variable_settings;
                     
-                    $variable_settings = json_decode($var_query->row()->variable_settings, true);
+                    $encoding = 'json';
+                    
+                    // check old serialize encoding 
+                    if (substr($variable_settings, 0, 3) == 'YTo') {
+                        $variable_settings = str_replace('_', '/', $variable_settings);
+                        $variable_settings = @unserialize(base64_decode($variable_settings));
+                        $encoding = 'serialize';
+                    } else {
+                        $variable_settings = json_decode($variable_settings, true);
+                    }
 
                     foreach ($data as $key => $val) {
                         $variable_settings['options'][$val] = $val;
                     }
+                    
+                    if ($encoding == 'serialize') {
+                        ee()->db->set('variable_settings', base64_encode(serialize($variable_settings)));
+                    } else {
+                        ee()->db->set('variable_settings', json_encode($variable_settings));
+                    }
 
                     ee()->db->where('variable_id', $variable_id);
-                    ee()->db->set('variable_settings', json_encode($variable_settings));
                     ee()->db->update($variable_table);
 
                 }

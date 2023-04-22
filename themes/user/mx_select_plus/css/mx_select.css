@@ -32,14 +32,21 @@
     padding: 10px 20px 10px 5px;
 }
 .mx-select-plus-wrapper .chzn-container-multi .chzn-choices .search-field input {
-    height: 34px;
+    height: 40px;
+}
+.mx-select-plus-wrapper .chzn-container .chzn-results li {
+    padding: 12px 6px;
+}
+.mx-select-plus-wrapper .chzn-container .chzn-results em {
+    display: inline;
+    margin: 0;
+    font-size: inherit;
 }
 .mx-select-plus-wrapper select[multiple] {
     padding: 0 !important;
-    height: 46px;
-	opacity: 0.5;
+    height: 48px;
+    opacity: 0.5;
 }
-
 
 /* EE 7 */ 
 
