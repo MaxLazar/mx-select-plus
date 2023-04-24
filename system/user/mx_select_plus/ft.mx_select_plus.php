@@ -538,6 +538,12 @@ class Mx_select_plus_ft extends EE_Fieldtype
             );
         } else {
 
+            // list type compatibility
+            $options = $this->_options($this->_data_help($data, 'options'));
+            if (isset($data['field_list_items']) && empty($options)) {
+                $options = $data['field_list_items'];
+            }
+
             $fields['placeholder'][$prefix.'[placeholder]'] = array(
                 'type' => 'text',
                 'value' => $this->_data_help($data, 'placeholder'),
@@ -563,7 +569,7 @@ class Mx_select_plus_ft extends EE_Fieldtype
             );
             $fields['field_list_items'][$prefix.'[options]'] = array(
                 'type' => 'textarea',
-                'value' =>$this->_options($this->_data_help($data, 'options')),
+                'value' => $options,
             );
             $fields['db_request'][$prefix.'[db_request]'] = array(
                 'type' => 'textarea',
@@ -730,6 +736,11 @@ class Mx_select_plus_ft extends EE_Fieldtype
         }
 
         if (isset($data[$prefix])) {
+
+            // list type compatibility
+            if (isset($data[$prefix]['options'])) {
+                $vars['field_list_items'] = $data[$prefix]['options'];
+            }
 
             foreach ($data[$prefix] as $key => $val) {
 

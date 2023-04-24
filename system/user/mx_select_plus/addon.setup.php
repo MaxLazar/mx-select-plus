@@ -27,7 +27,7 @@ return [
 	'fieldtypes' => array(
 		'mx_select_plus' => array(
 			//'name' => MX_SELECT_NAME,
-			'compatibility' => 'text'
+			'compatibility' => 'list'
 		)
 	),
 ];
