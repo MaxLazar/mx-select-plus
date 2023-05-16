@@ -31,7 +31,7 @@ class Mx_select_plus_ft extends EE_Fieldtype
     private static $grid_bind        = true;
 
 
-    private $EE2 = false;
+    private $ltEE3 = false;
 
     /**
      * PHP5 construct
@@ -42,7 +42,7 @@ class Mx_select_plus_ft extends EE_Fieldtype
         ee()->lang->loadfile(MX_SELECT_KEY);
 
         if (defined('APP_VER') && version_compare(APP_VER, '3.0.0', '<')) {
-            $this->EE2 = true;
+            $this->ltEE3 = true;
         }
 
     }
@@ -94,9 +94,8 @@ class Mx_select_plus_ft extends EE_Fieldtype
      */
     public function display_field($data, $view_type = 'field', $settings = array(), $cp = true, $passed_init = array())
     {
-
-
         ee()->load->helper('custom_field');
+
         $js            = "";
         $r             = "";
         $field_options = array();
@@ -108,6 +107,7 @@ class Mx_select_plus_ft extends EE_Fieldtype
 
         $pos                 = strpos($field_name, "[fields]");
         $fluid_field_data_id = (isset($this->settings['fluid_field_data_id'])) ? $this->settings['fluid_field_data_id'] : 0;
+        $is_fluid_template = (array_key_exists('fluid_field_data_id', $this->settings) && $this->settings['fluid_field_data_id'] == null);
 
         if ($cell) {
             if (isset($this->settings['grid_field_id'])) {
@@ -127,82 +127,59 @@ class Mx_select_plus_ft extends EE_Fieldtype
             'name'              => ( $cell )  ? $this->cell_name : $field_name,
             'id'                => str_replace(array( "[", "]" ), "_", $field_name),
             'value'             => decode_multi_field($data),
-            'class'             => $field_class,
+            'class'             => rtrim(str_replace(array( "[", "]" ), "_", $field_class), '_'), //$field_class,
             'allow_new_options' => ( $this->settings['allow_new_options'] == 'y' || $this->settings['allow_new_options'] == 'o' ) ?  "true" : "false",
             'allow_deselect'    => ( isset($this->settings['allow_deselect'])) ?  (($this->settings['allow_deselect'] == 'y') ? "true" : "false") : "true"
         );
 
-        if ($view_type != 'cell' && $view_type != 'grid') {
+        if ( $view_type != 'cell' && $view_type != 'grid' && !$is_fluid_template ) {
             $js .='$("#'.$data['id'].'").chosen({no_results_text: "'.lang('no_results').'", add_new_options: '.$data['allow_new_options'].', cell_obj:false, add_new: "'.$data['id'].'", allow_single_deselect: '.$data['allow_deselect'].', group_class: "#'.$data['id'].'", callback: function() {}});
-					$("div.publish_field.publish_mx_select_plus").css({"overflow-y" : "visible"});
-					$("#low-variables-form").css({"overflow": "visible"});
-					$("#low-variables-form").parents(".pageContents:first").css({"overflow": "visible"});
-		';
+                    $("div.publish_field.publish_mx_select_plus").css({"overflow-y" : "visible"});
+                    $("#low-variables-form").css({"overflow": "visible"});
+                    $("#low-variables-form").parents(".pageContents:first").css({"overflow": "visible"});
+        ';
         }
 
-        $this->_add_js_css($cell_type);
+//        $this->_add_js_css($cell_type);
 
-        $this->_insert_js($js);
+//        $this->_insert_js($js);
 
         $attr = array (
-           ( $this->settings['multiselect'] == 'y' ) ? 'multiple' : '',
-           'data-placeholder="' . $this->settings['placeholder'] . '"',
-           'class="'.$data['class'].'"',
-           'style="' .'width:'.( ( isset($this->settings['min_width']) ) ? $this->settings['min_width'] : "100%" ).';'. '"',
-           'id="' . $data['id']. '"',
-           'dir="' . $this->_data_help($this->settings, 'field_text_direction') . '"',
-           'data-no="'.$data['allow_new_options'].'"',
-           'data-deselect="'.$data['allow_deselect'].'"'
+            ( $this->settings['multiselect'] == 'y' ) ? 'multiple' : '',
+            'data-placeholder="' . $this->settings['placeholder'] . '"',
+            'class="'.$data['class'].'"',
+            'style="' .'width:'.( ( isset($this->settings['min_width']) ) ? $this->settings['min_width'] : "100%" ).';'. '"',
+            'id="' . $data['id']. '"',
+            'dir="' . $this->_data_help($this->settings, 'field_text_direction') . '"',
+            'data-no="'.$data['allow_new_options'].'"',
+            'data-deselect="'.$data['allow_deselect'].'"'
         );
 
         $this->one_time_options($data["value"]);
 
         $field_options = ( is_array($this->settings['options']) ) ? array(""=>"") + $this->settings['options'] : array();
 
-        if (self::$grid_bind and ($view_type == 'grid' || true )) {
-            $js = "
+        if (self::$grid_bind) {
+            $js .= "
             (function($) {
-            	var newGridRowCountSp = 0;
-				Grid.bind('mx_select_plus', 'display', function(cell)
-			    {
-
-
-			    	var cell_obj    = cell.find('select');
-
-                    if (cell.data('row-id')) {
-                        rowId = cell.data('row-id');
-                    } else {
-                        rowId = 'new_row_' + ++newGridRowCountSp;
-                    }
-
-
-                    id = cell.parents('.grid-field').attr('id') + '_rows__row_id_' + rowId + '__col_id_' + cell.data('column-id') + '_';
-
-                    console.log(id);
-
-					cell_obj.attr('id', id);
-					add_new_options = cell_obj.data('no');
-					allow_deselect  = cell_obj.data('deselect');
-					cell_obj.chosen({add_new_options: add_new_options , add_new: id, cell_obj: cell, allow_single_deselect: allow_deselect, callback: function() {}});
-			    });
-
-			    FluidField.on('mx_select_plus', 'add', function(element)
-			    {
-			    	var cell_obj = element.find('select');
-			    	add_new_options = cell_obj.data('no');
-					allow_deselect = cell_obj.data('deselect');
-					cell_obj.chosen({add_new_options: add_new_options , add_new: cell_obj.attr('id'), cell_obj: cell, allow_single_deselect: allow_deselect, callback: function() {}});
-			    });
-			})(jQuery);
-
-			";
-
+                FluidField.on('mx_select_plus', 'add', function(element)
+                {
+                    var select_field = element.find('select');
+                    add_new_options = select_field.data('no');
+                    allow_deselect = select_field.data('deselect');
+                    var field_id = select_field.attr('id');
+                    select_field.chosen({add_new_options: add_new_options , add_new: field_id, group_class: '#'+field_id, select_field: element, allow_single_deselect: allow_deselect, callback: function() {}});
+                });
+            })(jQuery);
+            ";
             self::$grid_bind = false;
         }
 
-        $this->_insert_js($js);
+//        $this->_insert_js($js);
         if ($cp) {
-         //   ee()->javascript->output($js);
+            $this->_add_js_css($cell_type);
+            $this->_insert_js($js);
+            //ee()->javascript->output($js);
         } else {
 
         }
@@ -226,13 +203,13 @@ class Mx_select_plus_ft extends EE_Fieldtype
             }
         }
 
-        return $r . form_dropdown($data['name'].'[]', $field_options, $data["value"], implode(' ', $attr));
+        return $r . '<div class="mx-select-plus-wrapper">' . form_dropdown($data['name'].'[]', $field_options, $data["value"], implode(' ', $attr)) . '</div>';
 
     }
 
     // @TODO
-    //	The fix is the change eec_matrix_cols > col_settings > change ‘TEXT’ to ‘LONGTEXT’
-    //	need to gift TheJae dev lic
+    //    The fix is the change eec_matrix_cols > col_settings > change ‘TEXT’ to ‘LONGTEXT’
+    //    need to gift TheJae dev lic
     //
 
     /**
@@ -266,7 +243,7 @@ class Mx_select_plus_ft extends EE_Fieldtype
     public function display_cell($data)
     {
 
-        return $this->display_field($data, true);
+        return $this->display_field($data, 'cell');
     }
 
     /**
@@ -277,7 +254,7 @@ class Mx_select_plus_ft extends EE_Fieldtype
      */
     public function grid_display_field($data)
     {
-        return $this->display_field($data, true);
+        return $this->display_field($data, 'grid');
     }
 
     /**
@@ -289,8 +266,7 @@ class Mx_select_plus_ft extends EE_Fieldtype
      */
     public function display_var_field($data)
     {
-
-        return $this->display_field($data, false);
+        return $this->display_field($data);
     }
 
     /**
@@ -305,6 +281,7 @@ class Mx_select_plus_ft extends EE_Fieldtype
         if (!isset(ee()->session->cache[MX_SELECT_KEY]['header'])) {
             ee()->cp->add_to_foot('<script type="text/javascript" src="'.$theme_url . '/js/chosen.jquery.min.js"></script>');
             ee()->cp->add_to_head('<link rel="stylesheet" type="text/css" href="' .$theme_url. '/css/chosen.css" />');
+            ee()->cp->add_to_head('<link rel="stylesheet" type="text/css" href="' .$theme_url. '/css/mx_select.css" />');
             ee()->session->cache[MX_SELECT_KEY]['header'] = true;
         };
 
@@ -331,7 +308,6 @@ class Mx_select_plus_ft extends EE_Fieldtype
      */
     function _get_field_options($data, $show_empty = '')
     {
-
         if (! is_array($this->settings['options'])) {
             foreach (explode("\n", trim($this->settings['options'])) as $v) {
                 $v = trim($v);
@@ -494,7 +470,7 @@ class Mx_select_plus_ft extends EE_Fieldtype
      */
     public function display_settings($data)
     {
-        if ($this->EE2) {
+        if ($this->ltEE3) {
             foreach ($this->_build_settings($data) as $v) {
                 ee()->table->add_row($v);
             }
@@ -546,7 +522,7 @@ class Mx_select_plus_ft extends EE_Fieldtype
             $prefix = MX_SELECT_KEY . '_';
         }
 
-        if ($this->EE2 || $type == "lv" || $type == "matrix") {
+        if ($this->ltEE3 || $type == "lv" || $type == "matrix") {
         //variable_settings
             return array (
                 array( lang('placeholder', 'placeholder'), form_input($prefix . '[placeholder]', $this->_data_help($data, 'placeholder')) ),
@@ -561,6 +537,12 @@ class Mx_select_plus_ft extends EE_Fieldtype
 
             );
         } else {
+
+            // list type compatibility
+            $options = $this->_options($this->_data_help($data, 'options'));
+            if (isset($data['field_list_items']) && empty($options)) {
+                $options = $data['field_list_items'];
+            }
 
             $fields['placeholder'][$prefix.'[placeholder]'] = array(
                 'type' => 'text',
@@ -587,7 +569,7 @@ class Mx_select_plus_ft extends EE_Fieldtype
             );
             $fields['field_list_items'][$prefix.'[options]'] = array(
                 'type' => 'textarea',
-                'value' =>$this->_options($this->_data_help($data, 'options')),
+                'value' => $options,
             );
             $fields['db_request'][$prefix.'[db_request]'] = array(
                 'type' => 'textarea',
@@ -745,7 +727,7 @@ class Mx_select_plus_ft extends EE_Fieldtype
         $prefix = MX_SELECT_KEY . '_';
 
         $vars = array();
-        if ($this->EE2) {
+        if ($this->ltEE3) {
             $vars = $data;
         }
 
@@ -754,6 +736,11 @@ class Mx_select_plus_ft extends EE_Fieldtype
         }
 
         if (isset($data[$prefix])) {
+
+            // list type compatibility
+            if (isset($data[$prefix]['options'])) {
+                $vars['field_list_items'] = $data[$prefix]['options'];
+            }
 
             foreach ($data[$prefix] as $key => $val) {
 
@@ -822,7 +809,12 @@ class Mx_select_plus_ft extends EE_Fieldtype
      */
     function save($data)
     {
-        $this->save_options($data);
+        // fluid fields - need to remove default string value
+        if (!is_array($data)) {
+            $data = '';
+        }
+        
+        $this->save_options($data); 
 
         if (!empty($data)) {
             $data = ( is_array($data) ) ? implode('|', $data) : $data;
@@ -865,7 +857,6 @@ class Mx_select_plus_ft extends EE_Fieldtype
         $r = array ();
         foreach ($data as $k => $v) {
             $r[] = $v;
-
         }
 
         return $this->save($r);
@@ -881,9 +872,7 @@ class Mx_select_plus_ft extends EE_Fieldtype
      */
     function save_options($data)
     {
-
         if (isset(ee()->session->cache[MX_SELECT_KEY]['new_field'])) {
-
             return;
         }
 
@@ -892,16 +881,16 @@ class Mx_select_plus_ft extends EE_Fieldtype
         }
 
 
-        /*	if ($this->settings['allow_new_options'] != 'y')
-		{
+        /*    if ($this->settings['allow_new_options'] != 'y')
+        {
 
-			return;
-		}
-	*/
+            return;
+        }
+        */
 
         $type = false;
-        foreach ($_POST['new_field'] as $key => $new_field) {
 
+        foreach ($_POST['new_field'] as $key => $new_field) {
             $col_id = false;
             if (!empty(ee()->safecracker)) {
 
@@ -916,14 +905,28 @@ class Mx_select_plus_ft extends EE_Fieldtype
                 $field_id = $field_id['field_id'];
 
             } elseif (isset($this->var_id)) {
-                $key = explode("_", $key);
-                $field_id = $key[1];
+
+                //$key = explode("_", $key);
+                $field_id = $key;
                 $col_id = false;
                 $type = 'lv';
+
             } else {
-                $key = explode("_", $key);
+
+                $key = explode("_", trim($key, "_"));
+
                 $field_id = $key[2];
-                $col_id = ( ( isset($key[5]) ) ? $key[5] : false ) ;
+
+                if (isset($key[10]) && $key[3] == 'fields') { // Fluid - field_id_264_fields__field_60__field_id_364_ New -field_id_264_fields__new_field_8__field_id_364_
+                    $field_id = end($key);
+                } elseif (isset($key[11]) && $key[9] == 'col') { // Grid
+                    $col_id = $key[11];
+                } elseif (isset($key[5]) && $key[3] == 'col') { // Matrix
+                    $col_id = $key[5];
+                } else {
+                    $col_id = end($key);
+                }
+
             }
 
             $this->update_settings_live($new_field, $field_id, $col_id, $type);
@@ -947,48 +950,60 @@ class Mx_select_plus_ft extends EE_Fieldtype
      */
     function update_settings_live($data, $field_id, $col_id = false, $type = false)
     {
+        $field_type = 'mx_select_plus';
 
         if (!$type) {
+            /*
             ee()->load->library('api');
 
-            if ($this->EE2) {
+            if ($this->ltEE3) {
                 ee()->api->instantiate('channel_fields');
             } else {
                 ee()->legacy_api->instantiate('channel_fields');
             }
 
             $current_settings = ee()->api_channel_fields->get_settings($field_id);
+            */
+
+            $field_query = ee()->db->select('field_type')->from('channel_fields')->where('field_id', $field_id)->get()->row('field_type');
+
+            if (!empty($field_query)) {
+                $field_type = $field_query;
+            }
 
             /*if ($this->settings['allow_new_options'] != 'y')
-			{
-				return;
-			}*/
+            {
+                return;
+            }
+            */
+            
+            if ($field_type == 'grid') {
 
-            if ($current_settings['field_type'] != "matrix") {
-                ee()->db->select('field_settings');
+                ee()->db->select('col_settings');
                 ee()->db->where('field_id', $field_id);
-                $query = ee()->db->get('channel_fields');
+                ee()->db->where('col_id', $col_id);
+                $query = ee()->db->get('grid_columns');
 
                 if ($query->num_rows() > 0) {
-                    $field_list_items = unserialize(base64_decode($query->row()->field_settings));
+                    $col_settings = json_decode($query->row()->col_settings, true);
 
-                    if ($field_list_items['allow_new_options'] != 'y') {
+                    if ($col_settings['allow_new_options'] != 'y') {
                         return;
                     }
 
                     foreach ($data as $key => $val) {
-                        $field_list_items['options'][$val] = $val;
+                        $col_settings['options'][$val] = $val;
                     }
 
                     ee()->db->where('field_id', $field_id);
-                    ee()->db->set('field_settings', base64_encode(serialize($field_list_items)));
-                    ee()->db->update('channel_fields');
+                    ee()->db->where('col_id', $col_id);
+                    ee()->db->set('col_settings', json_encode($col_settings));
+                    ee()->db->update('grid_columns');
+
                 }
 
+            } else if ($field_type == 'matrix') {
 
-            }
-
-            if ($current_settings['field_type'] == "matrix") {
                 ee()->db->select('col_settings');
                 ee()->db->where('field_id', $field_id);
                 ee()->db->where('col_id', $col_id);
@@ -1012,29 +1027,84 @@ class Mx_select_plus_ft extends EE_Fieldtype
 
                 }
 
+            } else {
+
+                ee()->db->select('field_settings');
+                ee()->db->where('field_id', $field_id);
+                $query = ee()->db->get('channel_fields');
+
+                if ($query->num_rows() > 0) {
+                    $field_list_items = unserialize(base64_decode($query->row()->field_settings));
+
+                    if ($field_list_items['allow_new_options'] != 'y') {
+                        return;
+                    }
+
+                    foreach ($data as $key => $val) {
+                        $field_list_items['options'][$val] = $val;
+                    }
+
+                    ee()->db->where('field_id', $field_id);
+                    ee()->db->set('field_settings', base64_encode(serialize($field_list_items)));
+                    ee()->db->update('channel_fields');
+                }
 
             }
 
-        } else {
-            ee()->db->select('variable_settings');
-            ee()->db->where('variable_id', $field_id);
-            $query = ee()->db->get('low_variables');
+        } else if ($type == 'lv') {
 
-            if ($query->num_rows() > 0) {
-                $variable_settings = unserialize(base64_decode($query->row()->variable_settings));
+            $variable_id = false;
+            $variable_table = false;
+            
+            if (ee()->db->table_exists('pro_variables')) {
+                $variable_table = 'pro_variables';
+            }
+            if (ee()->db->table_exists('low_variables')) {
+                $variable_table = 'low_variables';
+            }
+            if (!$variable_table) {
+                return;
+            }
 
-                if ($variable_settings['allow_new_options'] != 'y') {
-                    return;
+            if (isset($this->var_id)) {
+                $variable_id = $this->var_id;
+            } else {
+                $variable_id = ee()->db->select('variable_id')->where('variable_name', $field_id)->get('global_variables')->row('variable_id');
+            }
+
+            if ($variable_id) {
+
+                $var_query = $query = ee()->db->select('variable_settings')->where('variable_id', $variable_id)->get($variable_table);
+                
+                if ($var_query->num_rows() > 0) {
+
+                    $variable_settings = $var_query->row()->variable_settings;
+                    
+                    $encoding = 'json';
+                    
+                    // check old serialize encoding 
+                    if (substr($variable_settings, 0, 3) == 'YTo') {
+                        $variable_settings = str_replace('_', '/', $variable_settings);
+                        $variable_settings = @unserialize(base64_decode($variable_settings));
+                        $encoding = 'serialize';
+                    } else {
+                        $variable_settings = json_decode($variable_settings, true);
+                    }
+
+                    foreach ($data as $key => $val) {
+                        $variable_settings['options'][$val] = $val;
+                    }
+                    
+                    if ($encoding == 'serialize') {
+                        ee()->db->set('variable_settings', base64_encode(serialize($variable_settings)));
+                    } else {
+                        ee()->db->set('variable_settings', json_encode($variable_settings));
+                    }
+
+                    ee()->db->where('variable_id', $variable_id);
+                    ee()->db->update($variable_table);
+
                 }
-
-                foreach ($data as $key => $val) {
-                    $variable_settings['options'][$val] = $val;
-                }
-
-                ee()->db->where('variable_id', $field_id);
-                ee()->db->set('variable_settings', base64_encode(serialize($variable_settings)));
-                ee()->db->update('low_variables');
-
             }
 
         }
@@ -1053,4 +1123,3 @@ class Mx_select_plus_ft extends EE_Fieldtype
 // END mx_select_plus_ft class
 
 /* End of file ft.mx_select_plus.php */
-/* Location: ./expressionengine/third_party/mx_select_plus/ft.mx_select_plus.php */

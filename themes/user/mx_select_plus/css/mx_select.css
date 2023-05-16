@@ -1,0 +1,70 @@
+/* Chosen */
+
+.mx-select-plus-wrapper .chzn-container {
+    font-size: 14px;
+    vertical-align: top;
+}
+.mx-select-plus-wrapper .chzn-container-single .chzn-single {
+    padding: 10px;
+    height: auto;
+    line-height: auto;
+}
+.mx-select-plus-wrapper .chzn-container .search-choice-close {
+    top: 50% !important;
+    transform: translateY(-50%)  !important;
+}
+.mx-select-plus-wrapper .chzn-container-single .chzn-single div b {
+    position: absolute;
+    height: 26px;
+    top: 50%;
+    transform: translateY(-50%);
+	margin-top: 1px;
+}
+.mx-select-plus-wrapper .chzn-container .chzn-drop {
+	min-width: 100%;
+}
+.mx-select-plus-wrapper .chzn-container-multi .chzn-choices {
+    padding: 2px;
+    border-radius: 4px;
+}
+
+.mx-select-plus-wrapper .chzn-container-multi .chzn-choices .search-choice {
+    padding: 10px 20px 10px 5px;
+}
+.mx-select-plus-wrapper .chzn-container-multi .chzn-choices .search-field input {
+    height: 40px;
+}
+.mx-select-plus-wrapper .chzn-container .chzn-results li {
+    padding: 12px 6px;
+}
+.mx-select-plus-wrapper .chzn-container .chzn-results em {
+    display: inline;
+    margin: 0;
+    font-size: inherit;
+}
+.mx-select-plus-wrapper select[multiple] {
+    padding: 0 !important;
+    height: 48px;
+    opacity: 0.5;
+}
+
+/* EE 7 */ 
+
+body[data-ee-version^="7"] .mx-select-plus-wrapper .chzn-container-single .chzn-single, 
+body[data-ee-version^="7"] .mx-select-plus-wrapper .chzn-container .chzn-drop,
+body[data-ee-version^="7"] .mx-select-plus-wrapper .chzn-container-multi .chzn-choices {
+    background: var(--ee-input-bg);
+    border-color: var(--ee-input-border);
+}
+
+body[data-ee-version^="7"] .mx-select-plus-wrapper .chzn-container-single .chzn-single, 
+body[data-ee-version^="7"] .mx-select-plus-wrapper .chzn-container-active .chzn-single-with-drop, 
+body[data-ee-version^="7"] .mx-select-plus-wrapper .chzn-container-multi .chzn-choices .search-choice {
+    box-shadow: none;
+}
+
+body[data-ee-version^="7"] .mx-select-plus-wrapper .chzn-container-multi .chzn-choices .search-choice {
+    background: var(--ee-bg-5);
+    border-color: var(--ee-border-dark);
+    color: var(--ee-link) !important;
+}
